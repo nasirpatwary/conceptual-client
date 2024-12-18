@@ -15,7 +15,7 @@ import bgimg2 from '../assets/images/carousel2.jpg'
 import bgimg3 from '../assets/images/carousel3.jpg'
 
 export default function Carousel() {
-  return (
+  return ( 
     <div className='container px-6 py-10 mx-auto'>
       <Swiper
         spaceBetween={30}

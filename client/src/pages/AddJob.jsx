@@ -1,10 +1,49 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { AuthContext } from '../providers/AuthProvider'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 
 const AddJob = () => {
+  const navigate = useNavigate()
+  const { user } = useContext(AuthContext)
   const [startDate, setStartDate] = useState(new Date())
-
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const form = e.target;
+    const title = form.job_title.value;
+    const email = form.email.value;
+    const dateline = startDate;
+    const category = form.category.value;
+    const min_price = parseFloat(form.min_price.value);
+    const max_price = parseFloat(form.max_price.value);
+    const description = form.description.value;
+    const jobForms = {
+      title,
+      buyer: {
+        email,
+        name: user?.displayName,
+        photo: user?.photoURL,
+      },
+      dateline,
+      category,
+      min_price,
+      max_price,
+      description,
+      bid_count: 0
+    }
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/add-job`,jobForms)
+      form.reset()
+      toast.success("Data added SuccessFully!!!")
+      navigate("/my-posted-jobs")
+    } catch (error) {
+      toast.error(error.message)
+    }
+    
+  }
   return (
     <div className='flex justify-center items-center min-h-[calc(100vh-306px)] my-12'>
       <section className=' p-2 md:p-6 mx-auto bg-white rounded-md shadow-md '>
@@ -12,7 +51,7 @@ const AddJob = () => {
           Post a Job
         </h2>
 
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
             <div>
               <label className='text-gray-700 ' htmlFor='job_title'>
@@ -31,6 +70,8 @@ const AddJob = () => {
                 Email Address
               </label>
               <input
+                defaultValue={user?.email}
+                disabled={true}
                 id='emailAddress'
                 type='email'
                 name='email'
